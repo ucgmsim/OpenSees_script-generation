@@ -29,7 +29,7 @@ The templating engine can iterate over arrays or lists using the following const
     node    {{node.id}} {{node.x}} {{node.y}}
 {% endfor %}
 ```
-This supposes that we will a list called `nodes` which contains a series of hashes of the form
+This supposes that we will provide a variable called `nodes` which is a list of hashes of the form
 `{'id':1,'x':-1000.0,'y':-1000.0}`. Note that `{{node.number}}` could be replaced by `{{node['number']}}`.
 
 ## The code
