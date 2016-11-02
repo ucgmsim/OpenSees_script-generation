@@ -1,0 +1,241 @@
+####################################
+# Test to generate Lamb's problem  #
+####################################
+
+wipe
+
+#-----------------------------------------------------------------------------------------
+#  1. CREATE SOIL NODES AND FIXITIES
+#-----------------------------------------------------------------------------------------
+model BasicBuilder -ndm 2 -ndf 2
+
+# define soil nodes
+{% for node in nodes %}
+    node    {{node.number}} {{node.x}} {{node.y}}
+{% endfor %}
+
+# define fixities for soil nodes
+puts "Finished creating all -ndf 2 boundary conditions..."
+
+# define equal degrees of freedom for free-field columns
+puts "Finished creating equalDOF constraints for soil columns..."
+
+#-----------------------------------------------------------------------------------------
+#  2. CREATE SOIL MATERIALS
+#-----------------------------------------------------------------------------------------
+
+nDMaterial ElasticIsotropic 1 5000000 0.25 2
+set thick1 1.0
+set xWgt1      0.00
+#set yWgt1       -19.62
+set yWgt1      0.00
+puts "Finished creating all soil materials..."
+
+#-----------------------------------------------------------------------------------------
+#  3. CREATE SOIL ELEMENTS
+#-----------------------------------------------------------------------------------------
+
+# define soil elements
+{% for elem in elements %}
+ element quad {{elem.id}} {{elem.node['1']}} {{elem.node['2']}} {{elem.node['3']}} {{elem.node['4']}}  $thick1 PlaneStrain 1 0.0 0.0 $xWgt1 $yWgt1
+{% endfor %}
+
+
+#-----------------------------------------------------------------------------------------
+#  4. LYSMER DASHPOT
+#-----------------------------------------------------------------------------------------
+
+# Bottom boundary
+
+# define dashpot master nodes
+{% for node in dashpot_nodes_bottom %}
+    node    {{node.id}} {{node.x}} {{node.y}}
+{% endfor %}
+# define fixities for dashpot master nodes
+{% for node in dashpot_nodes_bottom %}
+    fix {{node.id}} 1 1
+{% endfor %}
+
+# Left boundary
+
+# define dashpot master nodes
+{% for node in dashpot_nodes_left %}
+    node    {{node.id}} {{node.x}} {{node.y}}
+{% endfor %}
+# define fixities for dashpot master nodes
+{% for node in dashpot_nodes_left %}
+    fix {{node.id}} 1 1
+{% endfor %}
+
+# Right boundary
+
+# define dashpot master nodes
+{% for node in dashpot_nodes_right %}
+    node    {{node.id}} {{node.x}} {{node.y}}
+{% endfor %}
+# define fixities for dashpot master nodes
+{% for node in dashpot_nodes_right %}
+    fix {{node.id}} 1 1
+{% endfor %}
+
+puts "Finished creating dashpot nodes and boundary conditions..."
+
+# define dashpot material
+set baseArea      10.00
+set dashpotCoeff_s    [expr 2.0*1000]
+set dashpotCoeff_p    [expr 2.0*1732]
+uniaxialMaterial Viscous 2 [expr $dashpotCoeff_s*$baseArea] 1
+uniaxialMaterial Viscous 3 [expr $dashpotCoeff_p*$baseArea] 1
+uniaxialMaterial Viscous 4 [expr 0.5*$dashpotCoeff_s*$baseArea] 1
+uniaxialMaterial Viscous 5 [expr 0.5*$dashpotCoeff_p*$baseArea] 1
+
+# define dashpot element
+# Bottom
+{% for dashpot in dashpot_elements_bottom %}
+element	zeroLength	{{dashpot.id}}  {{dashpot.node1}}	{{dashpot.node2}}	-mat	{{dashpot.mat}}	-dir	1	2
+{% endfor %}
+
+# Left
+{% for dashpot in dashpot_elements_left %}
+element	zeroLength {{dashpot.id}}	{{dashpot.node1}}	{{dashpot.node2}}	-mat	{{dashpot.mat}}	-dir	1	2
+{% endfor %}
+
+# Right
+{% for dashpot in dashpot_elements_right %}
+element	zeroLength {{dashpot.id}}	{{dashpot.node1}}	{{dashpot.node2}}	-mat	{{dashpot.mat}}	-dir	1	2
+{% endfor %}
+
+
+puts "Finished creating dashpot material and element..."
+
+#-----------------------------------------------------------------------------------------
+#  7. DEFINE ANALYSIS PARAMETERS
+#-----------------------------------------------------------------------------------------
+
+#---GROUND MOTION PARAMETERS
+# time step in ground motion record
+set motionDT     0.005
+# number of steps in ground motion record
+set motionSteps  7990
+
+#---RAYLEIGH DAMPING PARAMETERS
+set pi      3.141592654
+# damping ratio
+set damp    0.00
+# lower frequency
+set omega1  [expr 2*$pi*0.2]
+# upper frequency
+set omega2  [expr 2*$pi*20]
+# damping coefficients
+set a0      [expr 2*$damp*$omega1*$omega2/($omega1 + $omega2)]
+set a1      [expr 2*$damp/($omega1 + $omega2)]
+puts "damping coefficients: a_0 = $a0;  a_1 = $a1"
+
+set nSteps 512
+set dT 0.01
+# dt=0.1 should satisfy CFL condition
+puts "number of steps in analysis: $nSteps"
+puts "analysis time step: $dT"
+
+#---ANALYSIS PARAMETERS
+# Newmark parameters
+set gamma  0.5
+set beta   0.25
+
+#-----------------------------------------------------------------------------------------
+#  9. CREATE POST-GRAVITY RECORDERS
+#-----------------------------------------------------------------------------------------
+
+# reset time and analysis
+setTime 0.0
+wipeAnalysis
+remove recorders
+
+# recorder time step
+set recDT  [expr 1*$motionDT]
+
+# record nodal displacment, acceleration, and porepressure
+recorder Node -file displacement.out -time -dT $recDT -nodeRange 1 20301 -dof 1 2  disp
+recorder Node -file acceleration.out -time -dT $recDT -nodeRange 1 20301 -dof 1 2  accel
+# record elemental stress and strain
+#recorder Element -file stress1.out   -time -dT $recDT  -eleRange 1 20000  material 1 stress
+#recorder Element -file stress2.out   -time -dT $recDT  -eleRange 1 20000  material 2 stress
+#recorder Element -file stress3.out   -time -dT $recDT  -eleRange 1 20000  material 3 stress
+#recorder Element -file stress4.out   -time -dT $recDT  -eleRange 1 20000  material 4 stress
+#recorder Element -file strain1.out   -time -dT $recDT  -eleRange 1 20000  material 1 strain
+#recorder Element -file strain2.out   -time -dT $recDT  -eleRange 1 20000  material 2 strain
+#recorder Element -file strain3.out   -time -dT $recDT  -eleRange 1 20000  material 3 strain
+#recorder Element -file strain4.out   -time -dT $recDT  -eleRange 1 20000  material 4 strain
+#recorder pvd Lamb disp
+puts "Finished creating all recorders..."
+
+
+#-----------------------------------------------------------------------------------------
+#  10. DYNAMIC ANALYSIS
+#-----------------------------------------------------------------------------------------
+
+# define constant scaling factor for applied force
+set cFactor 1.0
+
+# define force time history file
+set forceFile forceHistoryTri.txt
+
+# timeseries object for force history
+set mSeries "Path -dt $motionDT -filePath $forceFile -factor $cFactor"
+
+# loading object
+pattern Plain 10 $mSeries {
+    load {{middle_point}} 0.0 -1.0
+}
+puts "Dynamic loading created..."
+
+constraints Transformation
+test        NormDispIncr 1.0e-6 35 1
+#algorithm   Linear
+algorithm   Newton
+numberer    RCM
+system      Mumps
+integrator  Newmark $gamma $beta
+#system      Diagonal
+#integrator  CentralDifference
+#rayleigh    $a0 $a1 0.0 0.0
+analysis    Transient
+
+# perform analysis with timestep reduction loop
+set ok [analyze $nSteps  $dT]
+
+# if analysis fails, reduce timestep and continue with analysis
+if {$ok != 0} {
+    puts "did not converge, reducing time step"
+    set curTime  [getTime]
+    puts "curTime: $curTime"
+    set curStep  [expr $curTime/$dT]
+    puts "curStep: $curStep"
+    set remStep  [expr int(($nSteps-$curStep)*2.0)]
+    puts "remStep: $remStep"
+    set dT       [expr $dT/2.0]
+    puts "dT: $dT"
+
+    set ok [analyze  $remStep  $dT]
+
+    # if analysis fails again, reduce timestep and continue with analysis
+    if {$ok != 0} {
+        puts "did not converge, reducing time step"
+        set curTime  [getTime]
+        puts "curTime: $curTime"
+        set curStep  [expr $curTime/$dT]
+        puts "curStep: $curStep"
+        set remStep  [expr int(($remStep-$curStep)*2.0)]
+        puts "remStep: $remStep"
+        set dT       [expr $dT/2.0]
+        puts "dT: $dT"
+
+        analyze  $remStep  $dT
+    }
+}
+set endT    [clock seconds]
+puts "Finished with dynamic analysis..."
+puts "Analysis execution time: [expr $endT-$startT] seconds"
+
+wipe
+
