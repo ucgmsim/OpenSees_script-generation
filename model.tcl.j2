@@ -11,7 +11,7 @@ model BasicBuilder -ndm 2 -ndf 2
 
 # define soil nodes
 {% for node in nodes %}
-    node    {{node.number}} {{node.x}} {{node.y}}
+    node    {{node.id}} {{node.x}} {{node.y}}
 {% endfor %}
 
 # define fixities for soil nodes

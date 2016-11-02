@@ -11,8 +11,8 @@ x_min = -1000.0
 x_max = 1000.0
 y_min = -1000.0
 y_max = 0.0
-nodes = []
-elements = []
+effective_nodes = []
+effective_elements = []
 dashpot_nodes_bottom = []
 dashpot_nodes_left = []
 dashpot_nodes_right = []
@@ -31,7 +31,7 @@ def create_nodes(y_nodes):
 
         y_0 = y_min
         for j in range(y_nodes+1):
-            nodes.append({'number':counter,'x':x_0,'y':y_0})
+            effective_nodes.append({'id':counter, 'x':x_0, 'y':y_0})
             y_0 += increment
             counter += 1
         x_0 += increment
@@ -44,7 +44,7 @@ def create_elements(y_nodes):
     for x in range(x_nodes):
         for y in range(y_nodes):
             element = {'1':starting,'2':starting+1,'4':starting+y_nodes+1,'3':starting+y_nodes+2}
-            elements.append({'id':id,'node':element})
+            effective_elements.append({'id':id, 'node':element})
             starting += 1
             id += 1
         starting += 1
@@ -52,7 +52,7 @@ def create_elements(y_nodes):
 def create_dashpot_nodes(y_nodes):
     x_nodes = 2*y_nodes
     increment = (y_max-y_min)/(y_nodes)
-    id = len(nodes)+1
+    id = len(effective_nodes) + 1
     # left
     y_0 = y_min
     x_0 = x_min
@@ -80,7 +80,7 @@ def create_dashpot_nodes(y_nodes):
 def create_dashpot_elements(y_nodes):
     x_nodes = 2*y_nodes
     increment = (y_max-y_min)/(y_nodes)
-    id = len(elements)+1
+    id = len(effective_elements) + 1
 
     # left
     counter = 1
@@ -102,9 +102,9 @@ def create_dashpot_elements(y_nodes):
 
         # find the node id of the normal node that corresponds to that node
         neighber = -1
-        for n in nodes:
+        for n in effective_nodes:
             if n['x'] == node['x'] and n['y'] == node['y']:
-                neighbor = n['number']
+                neighbor = n['id']
 
         dashpot_elements_bottom.append({'node2':node['id'],'node1':neighbor,'id':id,'mat':mat})
         counter += 1
@@ -119,9 +119,9 @@ def create_dashpot_elements(y_nodes):
 
         # find the node id of the normal node that corresponds to that node
         neighber = -1
-        for n in nodes:
+        for n in effective_nodes:
             if n['x'] == node['x'] and n['y'] == node['y']:
-                neighbor = n['number']
+                neighbor = n['id']
 
         dashpot_elements_right.append({'node2':node['id'],'node1':neighbor,'id':id,'mat':mat})
         counter += 1
@@ -129,22 +129,22 @@ def create_dashpot_elements(y_nodes):
 
 
 def find_middle_point():
-    for node in nodes:
+    for node in effective_nodes:
         if node['x'] == 0.0 and node['y'] == 0.0:
-            return node['number']
+            return node['id']
 
 def resolve_template():
     j2_env = Environment(loader=FileSystemLoader(THIS_DIR),
                          trim_blocks=True)
     print j2_env.get_template('model.tcl.j2').render(
-        nodes=nodes, elements=elements,dashpot_nodes_bottom=dashpot_nodes_bottom,
+        nodes=effective_nodes, elements=effective_elements,dashpot_nodes_bottom=dashpot_nodes_bottom,
         dashpot_nodes_right=dashpot_nodes_right,dashpot_nodes_left=dashpot_nodes_left,
         dashpot_elements_left=dashpot_elements_left,dashpot_elements_bottom=dashpot_elements_bottom,
         dashpot_elements_right=dashpot_elements_right, middle_point=middle_point
     )
 
 if __name__ == '__main__':
-    y_elements = 100
+    y_elements = 10
     create_nodes(y_elements)
     create_elements(y_elements)
     create_dashpot_nodes(y_elements)
