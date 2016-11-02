@@ -3,6 +3,7 @@
 
 from jinja2 import Environment, FileSystemLoader
 import os
+import sys
 
 # Capture our current directory
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -144,7 +145,14 @@ def resolve_template():
     )
 
 if __name__ == '__main__':
-    y_elements = 100
+
+    if len(sys.argv) < 2:
+        print "Please provide a resolution"
+        print "%s resolution" %sys.argv[0]
+        exit(1)
+
+    y_elements = int(sys.argv[1])
+
     create_nodes(y_elements)
     create_elements(y_elements)
     create_dashpot_nodes(y_elements)
