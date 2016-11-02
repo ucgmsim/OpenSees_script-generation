@@ -53,3 +53,8 @@ def resolve_template():
 will do the replacement on model.tcl.j2, so that the variable `{{nodes}}` will actually take the values defined on
 `effective_nodes` on the python code.
 
+## Executing the code
+
+Run `createModel.py > test.tcl` and it will generate a Lamb's problem with 100x200 elements on the test.tcl script.
+You can then run this TCL script with OpenSees.
+

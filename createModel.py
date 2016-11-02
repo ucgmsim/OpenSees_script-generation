@@ -144,7 +144,7 @@ def resolve_template():
     )
 
 if __name__ == '__main__':
-    y_elements = 10
+    y_elements = 100
     create_nodes(y_elements)
     create_elements(y_elements)
     create_dashpot_nodes(y_elements)
