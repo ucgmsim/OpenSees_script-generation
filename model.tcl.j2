@@ -11,7 +11,7 @@ model BasicBuilder -ndm 2 -ndf 2
 
 # define soil nodes
 {% for node in nodes %}
-    node    {{node.id}} {{node.x}} {{node.y}}
+node {{node.id}} {{node.x}} {{node.y}}
 {% endfor %}
 
 # define fixities for soil nodes
@@ -37,7 +37,7 @@ puts "Finished creating all soil materials..."
 
 # define soil elements
 {% for elem in elements %}
- element quad {{elem.id}} {{elem.node['1']}} {{elem.node['2']}} {{elem.node['3']}} {{elem.node['4']}}  $thick1 PlaneStrain 1 0.0 0.0 $xWgt1 $yWgt1
+element quad {{elem.id}} {{elem.node['1']}} {{elem.node['2']}} {{elem.node['3']}} {{elem.node['4']}}  $thick1 PlaneStrain 1 0.0 0.0 $xWgt1 $yWgt1
 {% endfor %}
 
 
@@ -49,33 +49,33 @@ puts "Finished creating all soil materials..."
 
 # define dashpot master nodes
 {% for node in dashpot_nodes_bottom %}
-    node    {{node.id}} {{node.x}} {{node.y}}
+node {{node.id}} {{node.x}} {{node.y}}
 {% endfor %}
 # define fixities for dashpot master nodes
 {% for node in dashpot_nodes_bottom %}
-    fix {{node.id}} 1 1
+fix {{node.id}} 1 1
 {% endfor %}
 
 # Left boundary
 
 # define dashpot master nodes
 {% for node in dashpot_nodes_left %}
-    node    {{node.id}} {{node.x}} {{node.y}}
+node {{node.id}} {{node.x}} {{node.y}}
 {% endfor %}
 # define fixities for dashpot master nodes
 {% for node in dashpot_nodes_left %}
-    fix {{node.id}} 1 1
+fix {{node.id}} 1 1
 {% endfor %}
 
 # Right boundary
 
 # define dashpot master nodes
 {% for node in dashpot_nodes_right %}
-    node    {{node.id}} {{node.x}} {{node.y}}
+node    {{node.id}} {{node.x}} {{node.y}}
 {% endfor %}
 # define fixities for dashpot master nodes
 {% for node in dashpot_nodes_right %}
-    fix {{node.id}} 1 1
+fix {{node.id}} 1 1
 {% endfor %}
 
 puts "Finished creating dashpot nodes and boundary conditions..."
@@ -142,7 +142,7 @@ puts "analysis time step: $dT"
 set gamma  0.5
 set beta   0.25
 
-set startT  [clock seconds] 
+set startT  [clock seconds]
 
 #-----------------------------------------------------------------------------------------
 #  9. CREATE POST-GRAVITY RECORDERS
@@ -157,17 +157,17 @@ remove recorders
 set recDT  [expr 1*$motionDT]
 
 # record nodal displacment, acceleration, and porepressure
-recorder Node -file displacement.out -time -dT $recDT -nodeRange 1 20301 -dof 1 2  disp
-recorder Node -file acceleration.out -time -dT $recDT -nodeRange 1 20301 -dof 1 2  accel
+recorder Node -file displacement.out -time -dT $recDT -nodeRange 1 {{node_number}} -dof 1 2  disp
+recorder Node -file acceleration.out -time -dT $recDT -nodeRange 1 {{node_number}} -dof 1 2  accel
 # record elemental stress and strain
-#recorder Element -file stress1.out   -time -dT $recDT  -eleRange 1 20000  material 1 stress
-#recorder Element -file stress2.out   -time -dT $recDT  -eleRange 1 20000  material 2 stress
-#recorder Element -file stress3.out   -time -dT $recDT  -eleRange 1 20000  material 3 stress
-#recorder Element -file stress4.out   -time -dT $recDT  -eleRange 1 20000  material 4 stress
-#recorder Element -file strain1.out   -time -dT $recDT  -eleRange 1 20000  material 1 strain
-#recorder Element -file strain2.out   -time -dT $recDT  -eleRange 1 20000  material 2 strain
-#recorder Element -file strain3.out   -time -dT $recDT  -eleRange 1 20000  material 3 strain
-#recorder Element -file strain4.out   -time -dT $recDT  -eleRange 1 20000  material 4 strain
+#recorder Element -file stress1.out   -time -dT $recDT  -eleRange 1 {{elem_number}} material 1 stress
+#recorder Element -file stress2.out   -time -dT $recDT  -eleRange 1 {{elem_number}} material 2 stress
+#recorder Element -file stress3.out   -time -dT $recDT  -eleRange 1 {{elem_number}} material 3 stress
+#recorder Element -file stress4.out   -time -dT $recDT  -eleRange 1 {{elem_number}} material 4 stress
+#recorder Element -file strain1.out   -time -dT $recDT  -eleRange 1 {{elem_number}} material 1 strain
+#recorder Element -file strain2.out   -time -dT $recDT  -eleRange 1 {{elem_number}} material 2 strain
+#recorder Element -file strain3.out   -time -dT $recDT  -eleRange 1 {{elem_number}} material 3 strain
+#recorder Element -file strain4.out   -time -dT $recDT  -eleRange 1 {{elem_number}} material 4 strain
 #recorder pvd Lamb disp
 puts "Finished creating all recorders..."
 

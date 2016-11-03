@@ -141,7 +141,8 @@ def resolve_template():
         nodes=effective_nodes, elements=effective_elements,dashpot_nodes_bottom=dashpot_nodes_bottom,
         dashpot_nodes_right=dashpot_nodes_right,dashpot_nodes_left=dashpot_nodes_left,
         dashpot_elements_left=dashpot_elements_left,dashpot_elements_bottom=dashpot_elements_bottom,
-        dashpot_elements_right=dashpot_elements_right, middle_point=middle_point
+        dashpot_elements_right=dashpot_elements_right, middle_point=middle_point, node_number=len(effective_nodes),
+        elem_number=len(effective_elements)
     )
 
 if __name__ == '__main__':
