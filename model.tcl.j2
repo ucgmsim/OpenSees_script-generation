@@ -11,7 +11,7 @@ model BasicBuilder -ndm 2 -ndf 2
 
 # define soil nodes
 {% for node in nodes %}
-node {{node.id}} {{node.x}} {{node.y}}
+    node {{node.id}} {{node.x}} {{node.y}}
 {% endfor %}
 
 # define fixities for soil nodes
@@ -37,7 +37,7 @@ puts "Finished creating all soil materials..."
 
 # define soil elements
 {% for elem in elements %}
-element quad {{elem.id}} {{elem.node['1']}} {{elem.node['2']}} {{elem.node['3']}} {{elem.node['4']}}  $thick1 PlaneStrain 1 0.0 0.0 $xWgt1 $yWgt1
+    element quad {{elem.id}} {{elem.node['2']}} {{elem.node['3']}} {{elem.node['4']}} {{elem.node['1']}}  $thick1 PlaneStrain 1 0.0 0.0 $xWgt1 $yWgt1
 {% endfor %}
 
 
@@ -49,33 +49,30 @@ element quad {{elem.id}} {{elem.node['1']}} {{elem.node['2']}} {{elem.node['3']}
 
 # define dashpot master nodes
 {% for node in dashpot_nodes_bottom %}
-node {{node.id}} {{node.x}} {{node.y}}
+    node {{node.id}} {{node.x}}  {{node.y}}
 {% endfor %}
 # define fixities for dashpot master nodes
 {% for node in dashpot_nodes_bottom %}
-fix {{node.id}} 1 1
+    fix {{node.id}} 1 1
 {% endfor %}
 
-# Left boundary
-
+# Left side boundary
 # define dashpot master nodes
 {% for node in dashpot_nodes_left %}
-node {{node.id}} {{node.x}} {{node.y}}
+    node {{node.id}} {{node.x}}  {{node.y}}
 {% endfor %}
 # define fixities for dashpot master nodes
 {% for node in dashpot_nodes_left %}
-fix {{node.id}} 1 1
+    fix {{node.id}} 1 1
 {% endfor %}
 
-# Right boundary
-
-# define dashpot master nodes
+# Right site boundary
 {% for node in dashpot_nodes_right %}
-node    {{node.id}} {{node.x}} {{node.y}}
+    node {{node.id}} {{node.x}} {{node.y}}
 {% endfor %}
 # define fixities for dashpot master nodes
 {% for node in dashpot_nodes_right %}
-fix {{node.id}} 1 1
+    fix {{node.id}} 1 1
 {% endfor %}
 
 puts "Finished creating dashpot nodes and boundary conditions..."
@@ -92,17 +89,17 @@ uniaxialMaterial Viscous 5 [expr 0.5*$dashpotCoeff_p*$baseArea] 1
 # define dashpot element
 # Bottom
 {% for dashpot in dashpot_elements_bottom %}
-element	zeroLength	{{dashpot.id}}  {{dashpot.node1}}	{{dashpot.node2}}	-mat	{{dashpot.mat}}	-dir	1	2
+    element	zeroLength	{{dashpot.id}}  {{dashpot.node1}}	{{dashpot.node2}}	-mat	{{dashpot.mat}}	-dir	1	2
 {% endfor %}
 
 # Left
 {% for dashpot in dashpot_elements_left %}
-element	zeroLength {{dashpot.id}}	{{dashpot.node1}}	{{dashpot.node2}}	-mat	{{dashpot.mat}}	-dir	1	2
+    element	zeroLength {{dashpot.id}}	{{dashpot.node1}}	{{dashpot.node2}}	-mat	{{dashpot.mat}}	-dir	1	2
 {% endfor %}
 
 # Right
 {% for dashpot in dashpot_elements_right %}
-element	zeroLength {{dashpot.id}}	{{dashpot.node1}}	{{dashpot.node2}}	-mat	{{dashpot.mat}}	-dir	1	2
+    element	zeroLength {{dashpot.id}}	{{dashpot.node1}}	{{dashpot.node2}}	-mat	{{dashpot.mat}}	-dir	1	2
 {% endfor %}
 
 
