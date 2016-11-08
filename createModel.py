@@ -44,7 +44,7 @@ def create_elements(y_nodes):
     id = 1
     for x in range(x_nodes):
         for y in range(y_nodes):
-            element = {'1':starting,'2':starting+1,'4':starting+y_nodes+1,'3':starting+y_nodes+2}
+            element = {'1':starting,'4':starting+1,'2':starting+y_nodes+1,'3':starting+y_nodes+2}
             effective_elements.append({'id':id, 'node':element})
             starting += 1
             id += 1
