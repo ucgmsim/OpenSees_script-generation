@@ -78,7 +78,7 @@ puts "Finished creating all soil materials..."
 puts "Finished creating dashpot nodes and boundary conditions..."
 
 # define dashpot material
-set baseArea      10.00
+set baseArea      {{baseArea}}
 set dashpotCoeff_s    [expr 2.0*1000]
 set dashpotCoeff_p    [expr 2.0*1732]
 uniaxialMaterial Viscous 2 [expr $dashpotCoeff_s*$baseArea] 1
@@ -139,7 +139,7 @@ puts "analysis time step: $dT"
 set gamma  0.5
 set beta   0.25
 
-set startT  [clock seconds]
+    set startT  [clock seconds]
 
 #-----------------------------------------------------------------------------------------
 #  9. CREATE POST-GRAVITY RECORDERS

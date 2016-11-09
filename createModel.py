@@ -21,10 +21,11 @@ dashpot_elements_bottom = []
 dashpot_elements_left = []
 dashpot_elements_right = []
 middle_point = -1
+increment = 0.0
+x_nodes = 0
+y_nodes = 0
 
-def create_nodes(y_nodes):
-    x_nodes = 2*y_nodes
-    increment = (y_max-y_min)/(y_nodes)
+def create_nodes():
     counter = 1
 
     x_0 = x_min
@@ -38,8 +39,8 @@ def create_nodes(y_nodes):
         x_0 += increment
 
 
-def create_elements(y_nodes):
-    x_nodes = 2*y_nodes
+def create_elements():
+
     starting = 1
     id = 1
     for x in range(x_nodes):
@@ -50,9 +51,8 @@ def create_elements(y_nodes):
             id += 1
         starting += 1
 
-def create_dashpot_nodes(y_nodes):
-    x_nodes = 2*y_nodes
-    increment = (y_max-y_min)/(y_nodes)
+def create_dashpot_nodes():
+
     id = len(effective_nodes) + 1
 
     y_0 = y_min
@@ -81,9 +81,9 @@ def create_dashpot_nodes(y_nodes):
         y_0 += increment
         id += 1
 
-def create_dashpot_elements(y_nodes):
-    x_nodes = 2*y_nodes
-    increment = (y_max-y_min)/(y_nodes)
+
+def create_dashpot_elements():
+
     id = len(effective_elements) + 1
 
     # bottom
@@ -138,6 +138,7 @@ def find_middle_point():
             return node['id']
     return -1
 
+
 def resolve_template():
     j2_env = Environment(loader=FileSystemLoader(THIS_DIR),
                          trim_blocks=True)
@@ -146,7 +147,7 @@ def resolve_template():
         dashpot_nodes_right=dashpot_nodes_right,dashpot_nodes_left=dashpot_nodes_left,
         dashpot_elements_left=dashpot_elements_left,dashpot_elements_bottom=dashpot_elements_bottom,
         dashpot_elements_right=dashpot_elements_right, middle_point=middle_point, node_number=len(effective_nodes),
-        elem_number=len(effective_elements)
+        elem_number=len(effective_elements),baseArea=increment
     )
 
 if __name__ == '__main__':
@@ -156,12 +157,14 @@ if __name__ == '__main__':
         print "%s resolution" %sys.argv[0]
         exit(1)
 
-    y_elements = int(sys.argv[1])
+    y_nodes = int(sys.argv[1])
+    x_nodes = 2*y_nodes
+    increment = (y_max-y_min)/(y_nodes)
 
-    create_nodes(y_elements)
-    create_elements(y_elements)
-    create_dashpot_nodes(y_elements)
-    create_dashpot_elements(y_elements)
+    create_nodes()
+    create_elements()
+    create_dashpot_nodes()
+    create_dashpot_elements()
     middle_point = find_middle_point()
     if middle_point == -1:
         print "Could not find middle point"
